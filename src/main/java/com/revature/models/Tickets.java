@@ -4,27 +4,27 @@ import java.util.Objects;
 
 public class Tickets {
 	
-	private int ticketNumb;
+	private float ticketAmount;
 	private String ticketDesc;
-	private String ticketStatus;
-	
+	private String ticketStatus = "Pending";
+	static int counter = 0;
 	
 	public Tickets() {
 		super();
-		// TODO Auto-generated constructor stub
+		Tickets.counter = Tickets.counter + 1;
 	}
 	
-	public Tickets(int ticketNumb, String ticketDesc, String ticketStatus) {
+	public Tickets(float ticketAmount, String ticketDesc, String ticketStatus) {
 		super();
-		this.ticketNumb = ticketNumb;
+		this.ticketAmount = ticketAmount;
 		this.ticketDesc = ticketDesc;
 		this.ticketStatus = ticketStatus;
 	}
-	public int getTicketNumb() {
-		return ticketNumb;
+	public float getTicketAmount() {
+		return ticketAmount;
 	}
-	public void setTicketNumb(int ticketNumb) {
-		this.ticketNumb = ticketNumb;
+	public void setTicketAmount(float ticketAmount) {
+		this.ticketAmount = ticketAmount;
 	}
 	public String getTicketDesc() {
 		return ticketDesc;
@@ -40,7 +40,7 @@ public class Tickets {
 	}
 	@Override
 	public int hashCode() {
-		return Objects.hash(ticketDesc, ticketNumb, ticketStatus);
+		return Objects.hash(ticketDesc, ticketAmount, ticketStatus);
 	}
 	@Override
 	public boolean equals(Object obj) {
@@ -51,12 +51,12 @@ public class Tickets {
 		if (getClass() != obj.getClass())
 			return false;
 		Tickets other = (Tickets) obj;
-		return Objects.equals(ticketDesc, other.ticketDesc) && ticketNumb == other.ticketNumb
+		return Objects.equals(ticketDesc, other.ticketDesc) && ticketAmount == other.ticketAmount
 				&& Objects.equals(ticketStatus, other.ticketStatus);
 	}
 	@Override
 	public String toString() {
-		return "Tickets [ticketNumb=" + ticketNumb + ", ticketDesc=" + ticketDesc + ", ticketStatus=" + ticketStatus
+		return "Ticket Number: "+counter +" [Amount= $" + ticketAmount + ", Description= " + ticketDesc + ", Status= " + ticketStatus
 				+ "]";
 	}
 	

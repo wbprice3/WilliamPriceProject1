@@ -4,19 +4,19 @@ import java.util.Objects;
 
 public class Employee {
 
-	private int idNum;
+	private static int idNum = 1;
 	private String username;
 	private String password;
 	private String role = "Employee";
 	
 	public Employee() {
 		super();
-		// TODO Auto-generated constructor stub
+		Employee.idNum = Employee.idNum + 1;
 	}
 
-	public Employee(int idNum, String username, String password) {
+	public Employee(String username, String password) {
 		super();
-		this.idNum = idNum;
+		
 		this.username = username;
 		this.password = password;
 		
@@ -74,7 +74,7 @@ public class Employee {
 
 	@Override
 	public String toString() {
-		return "Employee [idNum=" + idNum + ", username=" + username + ", password=" + password + ", role=" + role
+		return "Employee [idNum= " + idNum + ", username= " + username + ", password= " + password + ", role= " + role
 				+ "]";
 	}
 }
