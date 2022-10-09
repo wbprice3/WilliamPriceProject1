@@ -1,2 +1,0 @@
-Ticket Number: 1 [Amount= $143.95, Description= Dinner, Status= Pending]
-Ticket Number: 2 [Amount= $12.36, Description= Lunch, Status= Pending]
