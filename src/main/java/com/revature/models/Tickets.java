@@ -20,6 +20,9 @@ public class Tickets {
 		this.ticketDesc = ticketDesc;
 		this.ticketStatus = ticketStatus;
 	}
+	
+	public Tickets( int ticketNumber, float ticketAmount, String ticketDesc, String ticketStatus) {
+	}
 	public float getTicketAmount() {
 		return ticketAmount;
 	}

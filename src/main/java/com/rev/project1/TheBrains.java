@@ -14,6 +14,8 @@ import java.util.Set;
 import org.eclipse.jetty.http.HttpStatus;
 
 import com.revature.models.Tickets;
+import com.revature.repository.EmployeeRepository;
+import com.revature.repository.TicketRepository;
 import com.revature.models.Employee;
 
 import io.javalin.Javalin;
@@ -41,7 +43,9 @@ public class TheBrains {
 			 * the body into a Java object.
 			 * 
 			 */
+			TicketRepository tickRep = new TicketRepository();
 			Tickets receivedTicket = ctx.bodyAsClass(Tickets.class);
+			tickRep.save(receivedTicket);
 			recTick = receivedTicket.toString();
 			System.out.println(receivedTicket);
 			
@@ -64,6 +68,9 @@ public class TheBrains {
 			 */
 			
 			Employee receivedEmployee = ctx.bodyAsClass(Employee.class);
+			EmployeeRepository empRep = new EmployeeRepository();
+			empRep.save(receivedEmployee);
+			
 			System.out.println(receivedEmployee);
 			recEmp = receivedEmployee.toString();
 			
