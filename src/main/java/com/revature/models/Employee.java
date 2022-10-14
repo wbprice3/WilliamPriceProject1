@@ -3,7 +3,8 @@ package com.revature.models;
 import java.util.Objects;
 
 public class Employee {
-
+	
+	private boolean isManager = false;
 	private int idNum;
 	private String username;
 	private String password;
@@ -26,7 +27,9 @@ public class Employee {
 		this.idNum = idNum;
 		this.username = username;
 		this.password = password;
-		
+		this.role = role;
+		if(role.equals("Manager")) {
+		isManager = true;}
 	}
 
 	public int getIdNum() {

@@ -7,7 +7,9 @@ import org.eclipse.jetty.http.HttpStatus;
 import com.revature.models.Tickets;
 import com.revature.repository.EmployeeRepository;
 import com.revature.repository.TicketRepository;
+import com.revature.utils.AuthenticatorUtil;
 import com.revature.models.Employee;
+import com.revature.models.LogIn;
 
 import io.javalin.Javalin;
 import io.javalin.http.Context;
@@ -15,13 +17,17 @@ import io.javalin.http.Handler;
 
 public class TheBrains {
 
+	public static boolean authenticated;
 	public static String recEmp;
 	public static String recTick;
+	public static String recCreds;
 	public static void main(String[] args) {
 		
 		Javalin app = Javalin.create().start(8000);
 		TicketRepository tickRep = new TicketRepository();
 		EmployeeRepository empRep = new EmployeeRepository();
+		AuthenticatorUtil authUtil = new AuthenticatorUtil();
+		
 		
 			app.get("/hello",  (Context ctx) -> {
 				ctx.res().getWriter().write("Hello, client");
@@ -40,11 +46,22 @@ public class TheBrains {
 			Employee receivedEmployee = ctx.bodyAsClass(Employee.class);
 			
 			empRep.save(receivedEmployee);
-			
-			System.out.println(receivedEmployee);
 			recEmp = receivedEmployee.toString();
+			System.out.println(recEmp);
 			ctx.status(HttpStatus.CREATED_201);
+			
+		});
 		
+		app.post("/login", ctx -> {
+			LogIn creds = ctx.bodyAsClass(LogIn.class);
+			recCreds = creds.toString();
+			authenticated = recCreds.equals(authUtil.Authenticator(creds.geteUsername()));			
+			System.out.println(recCreds);
+			System.out.println(authUtil.Authenticator(creds.geteUsername()));
+			if (authenticated == true) {
+			ctx.status(HttpStatus.ACCEPTED_202);
+			}
+			else ctx.status(HttpStatus.BAD_REQUEST_400);
 		});
 		
 		app.get("/tickets",  (Context ctx) -> {
@@ -53,6 +70,7 @@ public class TheBrains {
 		
 		app.get("/employees",  (Context ctx) -> {
 			ctx.json(empRep.findAll());
+			System.out.println(empRep.findAll());
 	});
 		
 	}//End of MAIN
