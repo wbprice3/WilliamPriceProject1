@@ -41,7 +41,7 @@ public class TicketRepository {
 		public List<Tickets> findAll() {
 
 			// Make necessary Objects
-			List<Tickets> tickets = new ArrayList<>();
+			List<Tickets> ticklist = new ArrayList<>();
 			ResultSet set = null;
 			Statement stmt = null;
 			Connection conn = null;
@@ -53,9 +53,8 @@ public class TicketRepository {
 				stmt = conn.createStatement();
 
 				set = stmt.executeQuery("SELECT * FROM ticket");
-
 				while (set.next()) {
-					tickets.add(
+					ticklist.add(
 							new Tickets (set.getInt(1), set.getFloat(2), set.getString(3), set.getString(4)));
 				}
 			}
@@ -76,7 +75,7 @@ public class TicketRepository {
 				}
 			}
 
-			return tickets;
+			return ticklist;
 		}
 
 		public boolean update(Tickets ticket) {

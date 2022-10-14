@@ -4,14 +4,14 @@ import java.util.Objects;
 
 public class Employee {
 
-	private static int idNum = 1;
+	private int idNum;
 	private String username;
 	private String password;
 	private String role = "Employee";
 	
 	public Employee() {
 		super();
-		Employee.idNum = Employee.idNum + 1;
+		
 	}
 
 	public Employee(String username, String password) {
@@ -21,8 +21,9 @@ public class Employee {
 		
 	}
 	
-	public Employee(int id, String username, String password, String role) {
+	public Employee(int idNum, String username, String password, String role) {
 		super();
+		this.idNum = idNum;
 		this.username = username;
 		this.password = password;
 		
