@@ -8,6 +8,7 @@ public class Tickets {
 	private float ticketAmount;
 	private String ticketDesc;
 	private String ticketStatus = "Pending";
+	private String tickSubmitter;
 	
 	
 	public Tickets() {
@@ -20,11 +21,27 @@ public class Tickets {
 	 * this.ticketStatus = ticketStatus; }
 	 */
 	
+	public String getTickSubmitter() {
+		return tickSubmitter;
+	}
+
+	public void setTickSubmitter(String tickSubmitter) {
+		this.tickSubmitter = tickSubmitter;
+	}
+
 	public Tickets( int ticketNumber, float ticketAmount, String ticketDesc, String ticketStatus) {
 		this.ticketNumber = ticketNumber;
 		this.ticketAmount = ticketAmount;
 		this.ticketDesc = ticketDesc;
 		this.ticketStatus = ticketStatus;
+	}
+	
+	public Tickets( int ticketNumber, float ticketAmount, String ticketDesc, String ticketStatus, String tickSubmitter) {
+		this.ticketNumber = ticketNumber;
+		this.ticketAmount = ticketAmount;
+		this.ticketDesc = ticketDesc;
+		this.ticketStatus = ticketStatus;
+		this.tickSubmitter = tickSubmitter;
 	}
 	
 	
@@ -57,7 +74,7 @@ public class Tickets {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(ticketAmount, ticketDesc, ticketNumber, ticketStatus);
+		return Objects.hash(ticketAmount, ticketDesc, ticketNumber, ticketStatus, tickSubmitter);
 	}
 
 	@Override

@@ -17,13 +17,14 @@ public class TicketRepository {
 		public void save(Tickets ticket) {
 
 			PreparedStatement stmt = null;
-			final String SQL = "INSERT INTO ticket values(default, ?, ?, ?)";
+			final String SQL = "INSERT INTO ticket values(default, ?, ?, ?,?)";
 
 			try (Connection conn = ConnectionFactory.getConnection()) {
 				stmt = conn.prepareStatement(SQL);
 				stmt.setFloat(1, ticket.getTicketAmount());
 				stmt.setString(2, ticket.getTicketDesc());
 				stmt.setString(3, ticket.getTicketStatus());
+				stmt.setString(4, ticket.getTickSubmitter());
 				stmt.execute();
 
 			} catch (SQLException e) {
@@ -55,7 +56,7 @@ public class TicketRepository {
 				set = stmt.executeQuery("SELECT * FROM ticket");
 				while (set.next()) {
 					ticklist.add(
-							new Tickets (set.getInt(1), set.getFloat(2), set.getString(3), set.getString(4)));
+							new Tickets (set.getInt(1), set.getFloat(2), set.getString(3), set.getString(4), set.getString(5)));
 				}
 			}
 

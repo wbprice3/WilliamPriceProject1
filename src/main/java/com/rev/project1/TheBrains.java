@@ -8,6 +8,7 @@ import com.revature.models.Tickets;
 import com.revature.repository.EmployeeRepository;
 import com.revature.repository.TicketRepository;
 import com.revature.utils.AuthenticatorUtil;
+import com.revature.utils.TicketPuller;
 import com.revature.utils.UserNameExists;
 import com.revature.models.Employee;
 import com.revature.models.LogIn;
@@ -35,6 +36,7 @@ public class TheBrains {
 		EmployeeRepository empRep = new EmployeeRepository();
 		AuthenticatorUtil authUtil = new AuthenticatorUtil();
 		UserNameExists uNE = new UserNameExists();
+		TicketPuller tP = new TicketPuller();
 		
 		
 		
@@ -45,6 +47,7 @@ public class TheBrains {
 		app.post("/new-ticket", ctx -> {
 			
 			Tickets receivedTicket = ctx.bodyAsClass(Tickets.class);
+			receivedTicket.setTickSubmitter(loggedInAs);
 			tickRep.save(receivedTicket);
 			recTick = receivedTicket.toString();
 			System.out.println(receivedTicket);
@@ -92,6 +95,8 @@ public class TheBrains {
 		app.get("/tickets",  (Context ctx) -> {
 			if(userRole.equals("Manager")) {
 			ctx.json(tickRep.findAll());}
+			else if (userRole.equals("Employee")){ctx.json(tP.PullTickets(loggedInAs));}
+			
 	});
 		
 		app.get("/employees",  (Context ctx) -> {
