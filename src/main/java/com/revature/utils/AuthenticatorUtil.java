@@ -50,8 +50,51 @@ public class AuthenticatorUtil {
 			}
 		}
 
-		return "[LogIn [eUsername=" + uname + ", ePassword=" + upass + "]";
+		return "[LogIn [Username=" + uname + ", Password=" + upass + "]";
 	}
 	
+	public String GetUserRole(String uName) {
+
+		// Make necessary Objects
 	
+		String uRole = null;
+		ResultSet set = null;
+		PreparedStatement stmt = null;
+		Connection conn = null;
+
+		try {
+
+			conn = ConnectionFactory.getConnection();
+			
+			
+			final String SQL = "SELECT employee_role FROM employee WHERE employee_uname = ?";
+			stmt = conn.prepareStatement(SQL);
+			stmt.setString(1, uName);
+			set = stmt.executeQuery();
+
+			while (set.next()) {
+				uRole = set.getString(1);
+							
+			}
+		}
+
+		catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+		
+		finally {
+
+			try {
+				conn.close();
+				set.close();
+				stmt.close();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+
+		return uRole;
+	}
+
 }

@@ -4,39 +4,39 @@ import java.util.Objects;
 
 public class LogIn {
 	
-	private String eUsername;
-	private String ePassword;
+	private String Username;
+	private String Password;
 	
 	public LogIn() {
 		super();
 		// TODO Auto-generated constructor stub
 	}
 
-	public LogIn(String eUsername, String ePassword) {
+	public LogIn(String Username, String Password) {
 		super();
-		this.eUsername = eUsername;
-		this.ePassword = ePassword;
+		this.Username = Username;
+		this.Password = Password;
 	}
 
-	public String geteUsername() {
-		return eUsername;
+	public String getUsername() {
+		return Username;
 	}
 
-	public void seteUsername(String eUsername) {
-		this.eUsername = eUsername;
+	public void setUsername(String Username) {
+		this.Username = Username;
 	}
 
-	public String getePassword() {
-		return ePassword;
+	public String getPassword() {
+		return Password;
 	}
 
-	public void setePassword(String ePassword) {
-		this.ePassword = ePassword;
+	public void setPassword(String Password) {
+		this.Password = Password;
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(ePassword, eUsername);
+		return Objects.hash(Password, Username);
 	}
 
 	@Override
@@ -48,12 +48,12 @@ public class LogIn {
 		if (getClass() != obj.getClass())
 			return false;
 		LogIn other = (LogIn) obj;
-		return Objects.equals(ePassword, other.ePassword) && Objects.equals(eUsername, other.eUsername);
+		return Objects.equals(Password, other.Password) && Objects.equals(Username, other.Username);
 	}
 
 	@Override
 	public String toString() {
-		return "[LogIn [eUsername=" + eUsername + ", ePassword=" + ePassword + "]";
+		return "[LogIn [Username=" + Username + ", Password=" + Password + "]";
 	}
 	
 	
