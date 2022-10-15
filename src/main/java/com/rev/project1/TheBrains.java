@@ -21,7 +21,9 @@ public class TheBrains {
 	public static String recEmp;
 	public static String recTick;
 	public static String recCreds;
+	public static String loggedInAs;
 	public static void main(String[] args) {
+	
 		
 		Javalin app = Javalin.create().start(8000);
 		TicketRepository tickRep = new TicketRepository();
@@ -52,16 +54,25 @@ public class TheBrains {
 			
 		});
 		
+				
 		app.post("/login", ctx -> {
 			LogIn creds = ctx.bodyAsClass(LogIn.class);
 			recCreds = creds.toString();
-			authenticated = recCreds.equals(authUtil.Authenticator(creds.geteUsername()));			
+			authenticated = recCreds.equals(authUtil.Authenticator(creds.getUsername()));			
 			System.out.println(recCreds);
-			System.out.println(authUtil.Authenticator(creds.geteUsername()));
+			System.out.println(authUtil.Authenticator(creds.getUsername()));
 			if (authenticated == true) {
+			loggedInAs = creds.getUsername();
 			ctx.status(HttpStatus.ACCEPTED_202);
 			}
 			else ctx.status(HttpStatus.BAD_REQUEST_400);
+		});
+		
+		app.after("/login*", ctx -> {
+			System.out.println(authenticated);
+			if(authenticated == true) {
+		    ctx.result("You are logged in as Username: "+ loggedInAs);}
+			else ctx.result("Invalid Username/Password.");
 		});
 		
 		app.get("/tickets",  (Context ctx) -> {
