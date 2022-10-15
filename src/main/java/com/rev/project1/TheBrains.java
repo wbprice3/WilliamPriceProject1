@@ -5,6 +5,7 @@ import java.util.List;
 import org.eclipse.jetty.http.HttpStatus;
 
 import com.revature.models.Tickets;
+import com.revature.models.UpdateTicketReq;
 import com.revature.repository.EmployeeRepository;
 import com.revature.repository.TicketRepository;
 import com.revature.utils.AuthenticatorUtil;
@@ -24,9 +25,11 @@ public class TheBrains {
 	public static String recEmp;
 	public static String recTick;
 	public static String recCreds;
+	public static String recReq;
 	public static String loggedInAs;
 	public static boolean exists;
 	public static String userRole;
+	public static boolean updated;
 	
 	public static void main(String[] args) {
 	
@@ -92,10 +95,16 @@ public class TheBrains {
 			else ctx.result("Invalid Username/Password.");
 		});
 		
-		app.get("/tickets",  (Context ctx) -> {
+		app.get("/pending_tickets",  (Context ctx) -> {
 			if(userRole.equals("Manager")) {
 			ctx.json(tickRep.findAll());}
-			else if (userRole.equals("Employee")){ctx.json(tP.PullTickets(loggedInAs));}
+			else if (userRole.equals("Employee")){
+				ctx.status(HttpStatus.BAD_REQUEST_400);;}
+		});
+			
+	
+		app.get("/employee_tickets",  (Context ctx) -> {
+			ctx.json(tP.PullTickets(loggedInAs));
 			
 	});
 		
@@ -104,6 +113,23 @@ public class TheBrains {
 			System.out.println(empRep.findAll());
 	});
 		
+		app.post("/updateTicket", ctx -> {
+			if (userRole.equals("Manager")) {
+			UpdateTicketReq updateTR = ctx.bodyAsClass(UpdateTicketReq.class);
+			recReq = updateTR.toString();
+			String updateCommand =updateTR.getCommand();
+			int ticketNum = updateTR.getTicketNumber();
+			tickRep.updateTicket(updateCommand, ticketNum);
+			updated = true;
+			ctx.status(HttpStatus.ACCEPTED_202);}
+			else ctx.status(HttpStatus.BAD_REQUEST_400);
+		});
+	
+		app.after("/updateTicket*", ctx -> {
+			if((updated == true)&&(userRole.equals("Manager"))) {
+		    ctx.result("Ticket Status Updated");}
+			else ctx.result("You Do Not Have Permission To Update Ticket Statuses");
+		});
 	}//End of MAIN
 	
 }//End of Class

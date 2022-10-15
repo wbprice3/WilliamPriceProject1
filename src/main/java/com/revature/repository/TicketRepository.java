@@ -79,23 +79,21 @@ public class TicketRepository {
 			return ticklist;
 		}
 
-		public boolean update(Tickets ticket) {
+		public void updateTicket(String command, int ticketNum) {
 
 			Connection conn = null;
 			PreparedStatement stmt = null;
-			final String SQL = "UPDATE ticket SET ticket_amount = ? , "
-					+ "ticket_desc = ?, ticket_status = ?";
+			final String SQL = "UPDATE ticket SET ticket_status = ? WHERE ticket_num = ? ";
 			try {
 				conn = ConnectionFactory.getConnection();
 				stmt = conn.prepareStatement(SQL);
-				stmt.setFloat(1, ticket.getTicketAmount());
-				stmt.setString(2, ticket.getTicketDesc());
-				stmt.setString(3, ticket.getTicketStatus());
-				stmt.execute(SQL);
+				stmt.setInt(2, ticketNum);
+				stmt.setString(1, command);
+				stmt.execute();
 
 			} catch (SQLException e) {
 				e.printStackTrace();
-				return false;
+				
 			} finally {
 				try {
 					conn.close();
@@ -104,9 +102,6 @@ public class TicketRepository {
 					e.printStackTrace();
 				}
 			}
-
-			return true;
-
 		}
 		
 		
