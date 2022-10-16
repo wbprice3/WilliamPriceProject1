@@ -39,7 +39,7 @@ public class TicketRepository {
 
 		}
 
-		public List<Tickets> findAll() {
+		public List<Tickets> findAllPending() {
 
 			// Make necessary Objects
 			List<Tickets> ticklist = new ArrayList<>();
@@ -79,7 +79,7 @@ public class TicketRepository {
 			return ticklist;
 		}
 
-		public void updateTicket(String command, int ticketNum) {
+		public void updateTicket(String NewStatus, int TicketNumber) {
 
 			Connection conn = null;
 			PreparedStatement stmt = null;
@@ -87,8 +87,8 @@ public class TicketRepository {
 			try {
 				conn = ConnectionFactory.getConnection();
 				stmt = conn.prepareStatement(SQL);
-				stmt.setInt(2, ticketNum);
-				stmt.setString(1, command);
+				stmt.setInt(2, TicketNumber);
+				stmt.setString(1, NewStatus);
 				stmt.execute();
 
 			} catch (SQLException e) {

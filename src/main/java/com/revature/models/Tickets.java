@@ -9,8 +9,7 @@ public class Tickets {
 	private String ticketDesc;
 	private String ticketStatus = "Pending";
 	private String tickSubmitter;
-	
-	
+		
 	public Tickets() {
 		super();
 	}
@@ -64,6 +63,7 @@ public class Tickets {
 	}
 	public void setTicketDesc(String ticketDesc) {
 		this.ticketDesc = ticketDesc;
+		
 	}
 	public String getTicketStatus() {
 		return ticketStatus;

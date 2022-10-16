@@ -5,7 +5,7 @@ import java.util.List;
 import org.eclipse.jetty.http.HttpStatus;
 
 import com.revature.models.Tickets;
-import com.revature.models.UpdateTicketReq;
+import com.revature.models.updateRequest;
 import com.revature.repository.EmployeeRepository;
 import com.revature.repository.TicketRepository;
 import com.revature.utils.AuthenticatorUtil;
@@ -30,6 +30,8 @@ public class TheBrains {
 	public static boolean exists;
 	public static String userRole;
 	public static boolean updated;
+	static int ticketNum;
+	
 	
 	public static void main(String[] args) {
 	
@@ -40,6 +42,7 @@ public class TheBrains {
 		AuthenticatorUtil authUtil = new AuthenticatorUtil();
 		UserNameExists uNE = new UserNameExists();
 		TicketPuller tP = new TicketPuller();
+		
 		
 		
 		
@@ -97,9 +100,14 @@ public class TheBrains {
 		
 		app.get("/pending_tickets",  (Context ctx) -> {
 			if(userRole.equals("Manager")) {
-			ctx.json(tickRep.findAll());}
+			ctx.json(tickRep.findAllPending());}
 			else if (userRole.equals("Employee")){
 				ctx.status(HttpStatus.BAD_REQUEST_400);;}
+		});
+		
+		app.after("/pending_tickets*", ctx -> {
+			if(userRole.equals("Employee")) {
+		    ctx.result("You are not authorized to view this page");}
 		});
 			
 	
@@ -113,21 +121,30 @@ public class TheBrains {
 			System.out.println(empRep.findAll());
 	});
 		
-		app.post("/updateTicket", ctx -> {
+		app.post("/updateTicketStatus", ctx -> {
 			if (userRole.equals("Manager")) {
-			UpdateTicketReq updateTR = ctx.bodyAsClass(UpdateTicketReq.class);
-			recReq = updateTR.toString();
-			String updateCommand =updateTR.getCommand();
-			int ticketNum = updateTR.getTicketNumber();
+			updateRequest upReq = ctx.bodyAsClass(updateRequest.class);
+			recReq = upReq.toString();
+			String updateCommand =upReq.getNewStatus();
+			ticketNum = upReq.getTicketNumber();
+			String shouldUpdate = authUtil.StatusChecker(ticketNum);
+			if (!shouldUpdate.equals("Pending")) {
+				updated = false;
+				ctx.status(HttpStatus.BAD_REQUEST_400);
+			}
+			else {
 			tickRep.updateTicket(updateCommand, ticketNum);
-			updated = true;
+			updated = true;}
 			ctx.status(HttpStatus.ACCEPTED_202);}
 			else ctx.status(HttpStatus.BAD_REQUEST_400);
 		});
 	
-		app.after("/updateTicket*", ctx -> {
+		app.after("/updateTicketStatus*", ctx -> {
 			if((updated == true)&&(userRole.equals("Manager"))) {
 		    ctx.result("Ticket Status Updated");}
+			else if((updated == false)&&(userRole.equals("Manager"))) {
+			    ctx.result("Ticket Status Already Changed To : " + authUtil.StatusChecker(ticketNum));
+				ctx.status(HttpStatus.BAD_REQUEST_400);}
 			else ctx.result("You Do Not Have Permission To Update Ticket Statuses");
 		});
 	}//End of MAIN
