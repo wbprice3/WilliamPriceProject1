@@ -31,6 +31,7 @@ public class TheBrains {
 	public static String userRole;
 	public static boolean updated;
 	static int ticketNum;
+	static boolean inputBad;
 	
 	
 	public static void main(String[] args) {
@@ -54,10 +55,20 @@ public class TheBrains {
 			
 			Tickets receivedTicket = ctx.bodyAsClass(Tickets.class);
 			receivedTicket.setTickSubmitter(loggedInAs);
-			tickRep.save(receivedTicket);
 			recTick = receivedTicket.toString();
-			System.out.println(receivedTicket);
-			ctx.status(HttpStatus.CREATED_201);
+			if ((receivedTicket.getTicketDesc().equals(""))||(receivedTicket.getTicketAmount()== 0.0)) {
+				inputBad = true;
+				ctx.status(HttpStatus.BAD_REQUEST_400);
+			}else {
+				inputBad = false;
+			tickRep.save(receivedTicket);
+			ctx.status(HttpStatus.CREATED_201);}
+		});
+		
+		app.after("/new-ticket*", ctx -> {
+			if(inputBad == true) {
+		    ctx.result("Tickets Require A Valid Amount and Description");}
+			else ctx.result("New Ticket Created");
 		});
 		
 		app.post("/new-employee", ctx -> {

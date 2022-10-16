@@ -6,7 +6,7 @@ public class Tickets {
 	
 	private int	ticketNumber;
 	private float ticketAmount;
-	private String ticketDesc;
+	private String ticketDesc = null;
 	private String ticketStatus = "Pending";
 	private String tickSubmitter;
 		
