@@ -116,6 +116,18 @@ public class TheBrains {
 				ctx.status(HttpStatus.BAD_REQUEST_400);;}
 		});
 		
+		app.get("/completed_tickets",  (Context ctx) -> {
+			if(userRole.equals("Manager")) {
+			ctx.json(tickRep.findAllComplete());}
+			else if (userRole.equals("Employee")){
+				ctx.status(HttpStatus.BAD_REQUEST_400);;}
+		});
+		
+		app.after("/completed_tickets*", ctx -> {
+			if(userRole.equals("Employee")) {
+		    ctx.result("You are not authorized to view this page");}
+		});
+		
 		app.after("/pending_tickets*", ctx -> {
 			if(userRole.equals("Employee")) {
 		    ctx.result("You are not authorized to view this page");}
