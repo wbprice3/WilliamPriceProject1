@@ -6,6 +6,7 @@ import com.revature.models.Tickets;
 import com.revature.models.updateRequest;
 import com.revature.repository.EmployeeRepository;
 import com.revature.repository.TicketRepository;
+import com.revature.service.AuthService;
 import com.revature.service.EmployeeService;
 import com.revature.utils.AuthenticatorUtil;
 import com.revature.utils.TicketPuller;
@@ -18,6 +19,8 @@ import io.javalin.http.Context;
 public class TheBrains {
 
 	public static boolean authenticated;
+	static String recUserName;
+	static String recPassword;
 	public static String newUserName;
 	public static String recEmp;
 	public static String recTick;
@@ -33,12 +36,11 @@ public class TheBrains {
 	
 	public static void main(String[] args) {
 	
-		
+		EmployeeService empService = new EmployeeService();
+		//EmployeeRepository empRep = new EmployeeRepository();
 		Javalin app = Javalin.create().start(8000);
 		TicketRepository tickRep = new TicketRepository();
-		EmployeeRepository empRep = new EmployeeRepository();
 		AuthenticatorUtil authUtil = new AuthenticatorUtil();
-		EmployeeService empService = new EmployeeService();
 		TicketPuller tP = new TicketPuller();
 		
 		
@@ -48,6 +50,71 @@ public class TheBrains {
 				ctx.res().getWriter().write("Hello, client");
 		});
 		
+		
+			
+			// *********THE NEW EMPLOYEE PAGE IS FINISHED ********
+			app.post("/new-employee", ctx -> {
+				
+				exists = true;
+				Employee receivedEmployee = ctx.bodyAsClass(Employee.class);
+				recEmp = receivedEmployee.toString();
+				newUserName = receivedEmployee.getUsername();
+				exists = empService.usernameExists(newUserName);
+				
+				if (exists == false) {
+				empService.saveEmployee(receivedEmployee);
+				
+				ctx.status(HttpStatus.CREATED_201);}
+				
+				else ctx.status(HttpStatus.BAD_REQUEST_400);
+			});
+			
+			app.after("/new-employee*", ctx -> {
+				if(exists == false) {
+			    ctx.result("You have created the new User: "+ newUserName);}
+				else ctx.result("Invalid Request\nThe Username (" + newUserName +") already exists in the database.");
+			});
+			// ************ABOVE CODE IS FINAL AND UNIT TESTED *********	
+			
+			
+			
+			app.post("/login", ctx -> {
+				
+				LogIn creds = ctx.bodyAsClass(LogIn.class);
+				recUserName = creds.getUsername();
+				recPassword = creds.getPassword();
+				authenticated = empService.userAuthentication(recUserName,recPassword);
+				System.out.println(recUserName);
+				System.out.println(recPassword);
+				System.out.println(authenticated);
+				//userRole = empService.getUsersRole(recUserName);
+				//System.out.println(userRole);
+				if (authenticated == true) {
+				loggedInAs = creds.getUsername();
+				ctx.status(HttpStatus.ACCEPTED_202);
+				}
+				else ctx.status(HttpStatus.BAD_REQUEST_400);
+			});
+			
+			app.after("/login*", ctx -> {
+				if(authenticated == true) {
+			    ctx.result("You are logged in as Username: "+ loggedInAs);}
+				else ctx.result("Invalid Username/Password.");
+			});
+				
+			
+			
+			
+		
+			
+			
+			
+			
+			
+			
+			
+			
+			
 		app.post("/new-ticket", ctx -> {
 			
 			Tickets receivedTicket = ctx.bodyAsClass(Tickets.class);
@@ -68,46 +135,19 @@ public class TheBrains {
 			else ctx.result("New Ticket Created");
 		});
 		
-		app.post("/new-employee", ctx -> {
-			exists = true;
-			Employee receivedEmployee = ctx.bodyAsClass(Employee.class);
-			recEmp = receivedEmployee.toString();
-			newUserName = receivedEmployee.getUsername();
-			exists = empService.usernameExists(newUserName);
-			System.out.println(newUserName);
-			System.out.println(exists);
-			
-			if (exists == false) {
-			empRep.save(receivedEmployee);
-			ctx.status(HttpStatus.CREATED_201);}
-			
-			else ctx.status(HttpStatus.BAD_REQUEST_400);
-		});
 		
-		app.after("/new-employee*", ctx -> {
-			if(exists == false) {
-		    ctx.result("You have created the new User: "+ newUserName);}
-			else ctx.result("Invalid Request\nThe Username (" + newUserName +") already exists in the database.");
-		});
-		
+		 
 				
-		app.post("/login", ctx -> {
-			LogIn creds = ctx.bodyAsClass(LogIn.class);
-			recCreds = creds.toString();
-			authenticated = recCreds.equals(authUtil.Authenticator(creds.getUsername()));
-			userRole = authUtil.GetUserRole(creds.getUsername());
-			if (authenticated == true) {
-			loggedInAs = creds.getUsername();
-			ctx.status(HttpStatus.ACCEPTED_202);
-			}
-			else ctx.status(HttpStatus.BAD_REQUEST_400);
-		});
 		
-		app.after("/login*", ctx -> {
-			if(authenticated == true) {
-		    ctx.result("You are logged in as Username: "+ loggedInAs);}
-			else ctx.result("Invalid Username/Password.");
-		});
+		
+		
+		
+		
+		
+		
+		
+		
+		
 		
 		app.get("/pending_tickets",  (Context ctx) -> {
 			if(userRole.equals("Manager")) {
@@ -115,6 +155,13 @@ public class TheBrains {
 			else if (userRole.equals("Employee")){
 				ctx.status(HttpStatus.BAD_REQUEST_400);;}
 		});
+		
+		app.after("/pending_tickets*", ctx -> {
+			if(userRole.equals("Employee")) {
+		    ctx.result("You are not authorized to view this page");}
+		});
+		
+		
 		
 		app.get("/completed_tickets",  (Context ctx) -> {
 			if(userRole.equals("Manager")) {
@@ -128,10 +175,7 @@ public class TheBrains {
 		    ctx.result("You are not authorized to view this page");}
 		});
 		
-		app.after("/pending_tickets*", ctx -> {
-			if(userRole.equals("Employee")) {
-		    ctx.result("You are not authorized to view this page");}
-		});
+		
 			
 	
 		app.get("/employee_tickets",  (Context ctx) -> {
@@ -139,10 +183,10 @@ public class TheBrains {
 			
 	});
 		
-		app.get("/employees",  (Context ctx) -> {
-			ctx.json(empRep.findAll());
-			System.out.println(empRep.findAll());
-	});
+//		app.get("/employees",  (Context ctx) -> {
+//			ctx.json(empRep.findAll());
+//			System.out.println(empRep.findAll());
+//	});
 		
 		app.post("/updateTicketStatus", ctx -> {
 			if (userRole.equals("Manager")) {
