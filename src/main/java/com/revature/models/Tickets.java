@@ -35,9 +35,9 @@ public class Tickets {
 		this.ticketStatus = ticketStatus;
 	}
 	
-	public Tickets( int ticketNumber, float ticketAmount, String ticketDesc, String ticketStatus, String tickSubmitter) {
+	public Tickets( int ticketNumber, double ticketAmount, String ticketDesc, String ticketStatus, String tickSubmitter) {
 		this.ticketNumber = ticketNumber;
-		this.ticketAmount = ticketAmount;
+		this.ticketAmount = (float) ticketAmount;
 		this.ticketDesc = ticketDesc;
 		this.ticketStatus = ticketStatus;
 		this.tickSubmitter = tickSubmitter;
