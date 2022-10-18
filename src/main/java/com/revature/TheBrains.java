@@ -97,117 +97,95 @@ public class TheBrains {
 				
 			// *********ABOVE CODE IS FINISHED AND UNIT TESTED ********
 			
+						
 			
 			
+			app.post("/new-ticket", ctx -> {
+			
+				Tickets receivedTicket = ctx.bodyAsClass(Tickets.class);
+				receivedTicket.setTickSubmitter(loggedInAs);
+				recTick = receivedTicket.toString();
+				if ((receivedTicket.getTicketDesc().equals(""))||(receivedTicket.getTicketAmount()== 0.0)) {
+					inputBad = true;
+					ctx.status(HttpStatus.BAD_REQUEST_400);
+				}else {
+					inputBad = false;
+					tickRep.save(receivedTicket);
+					ctx.status(HttpStatus.CREATED_201);}
+			});
+		
+			app.after("/new-ticket*", ctx -> {
+				if(inputBad == true) {
+					ctx.result("Tickets Require A Valid Amount and Description");}
+				else ctx.result("New Ticket Created");
+			});
+		
+		
+			// *****UPDATED
+			app.get("/pending_tickets",  (Context ctx) -> {
+				if(userRole.equals("Manager")) {
+					ctx.json(tickService.getPendingTickets());}
+				else if (userRole.equals("Employee")){
+					ctx.status(HttpStatus.BAD_REQUEST_400);;}
+			});
+		
+			app.after("/pending_tickets*", ctx -> {
+				if(userRole.equals("Employee")) {
+					ctx.result("You are not authorized to view this page");}
+			});
+		
+		
+			// ****UPDATED & TESTED
+			app.get("/completed_tickets",  (Context ctx) -> {
+				if(userRole.equals("Manager")) {
+					ctx.json(tickService.getCompletedTickets());}
+				else if (userRole.equals("Employee")){
+					ctx.status(HttpStatus.BAD_REQUEST_400);;}
+			});
+		
+			app.after("/completed_tickets*", ctx -> {
+				if(userRole.equals("Employee")) {
+					ctx.result("You are not authorized to view this page");}
+			});
+			// *****COMPLETE
 		
 			
-			
-			
-			
-			
-			
-			
-			
-			
-		app.post("/new-ticket", ctx -> {
-			
-			Tickets receivedTicket = ctx.bodyAsClass(Tickets.class);
-			receivedTicket.setTickSubmitter(loggedInAs);
-			recTick = receivedTicket.toString();
-			if ((receivedTicket.getTicketDesc().equals(""))||(receivedTicket.getTicketAmount()== 0.0)) {
-				inputBad = true;
-				ctx.status(HttpStatus.BAD_REQUEST_400);
-			}else {
-				inputBad = false;
-			tickRep.save(receivedTicket);
-			ctx.status(HttpStatus.CREATED_201);}
-		});
-		
-		app.after("/new-ticket*", ctx -> {
-			if(inputBad == true) {
-		    ctx.result("Tickets Require A Valid Amount and Description");}
-			else ctx.result("New Ticket Created");
-		});
-		
-		
-		 
-				
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		// *****UPDATED
-		app.get("/pending_tickets",  (Context ctx) -> {
-			if(userRole.equals("Manager")) {
-			ctx.json(tickService.getPendingTickets());}
-			else if (userRole.equals("Employee")){
-				ctx.status(HttpStatus.BAD_REQUEST_400);;}
-		});
-		
-		app.after("/pending_tickets*", ctx -> {
-			if(userRole.equals("Employee")) {
-		    ctx.result("You are not authorized to view this page");}
-		});
-		
-		
-		// ****UPDATED & TESTED
-		app.get("/completed_tickets",  (Context ctx) -> {
-			if(userRole.equals("Manager")) {
-			ctx.json(tickService.getCompletedTickets());}
-			else if (userRole.equals("Employee")){
-				ctx.status(HttpStatus.BAD_REQUEST_400);;}
-		});
-		
-		app.after("/completed_tickets*", ctx -> {
-			if(userRole.equals("Employee")) {
-		    ctx.result("You are not authorized to view this page");}
-		});
-		
-		
-			
-		// *******UPDATED & TESTED
-		app.get("/employee_tickets",  (Context ctx) -> {
-			ctx.json(tickService.ticketPuller(loggedInAs));
-			
-	});
+			// *******UPDATED & TESTED
+			app.get("/employee_tickets",  (Context ctx) -> {
+				ctx.json(tickService.ticketPuller(loggedInAs));
+			});
 		
 //		app.get("/employees",  (Context ctx) -> {
 //			ctx.json(empRep.findAll());
 //			System.out.println(empRep.findAll());
 //	});
 		
-		app.post("/updateTicketStatus", ctx -> {
-			if (userRole.equals("Manager")) {
-			updateRequest upReq = ctx.bodyAsClass(updateRequest.class);
-			recReq = upReq.toString();
-			String updateCommand =upReq.getNewStatus();
-			ticketNum = upReq.getTicketNumber();
-			String shouldUpdate = tickService.getTicketStatus(ticketNum);
-			if (!shouldUpdate.equals("Pending")) {
-				updated = false;
-				ctx.status(HttpStatus.BAD_REQUEST_400);
-			}
-			else {
-			tickRep.updateTicket(updateCommand, ticketNum);
-			updated = true;}
-			ctx.status(HttpStatus.ACCEPTED_202);}
-			else ctx.status(HttpStatus.BAD_REQUEST_400);
-		});
+			app.post("/updateTicketStatus", ctx -> {
+				if (userRole.equals("Manager")) {
+					updateRequest upReq = ctx.bodyAsClass(updateRequest.class);
+					recReq = upReq.toString();
+					String updateCommand =upReq.getNewStatus();
+					ticketNum = upReq.getTicketNumber();
+					String shouldUpdate = tickService.getTicketStatus(ticketNum);
+					if (!shouldUpdate.equals("Pending")) {
+						updated = false;
+						ctx.status(HttpStatus.BAD_REQUEST_400);
+					}
+					else {
+						tickRep.updateTicket(updateCommand, ticketNum);
+						updated = true;}
+					ctx.status(HttpStatus.ACCEPTED_202);}
+				else ctx.status(HttpStatus.BAD_REQUEST_400);
+			});
 	
-		app.after("/updateTicketStatus*", ctx -> {
-			if((updated == true)&&(userRole.equals("Manager"))) {
-		    ctx.result("Ticket Status Updated");}
-			else if((updated == false)&&(userRole.equals("Manager"))) {
-			    ctx.result("Ticket Status Already Changed To : " + tickService.getTicketStatus(ticketNum));
-				ctx.status(HttpStatus.BAD_REQUEST_400);}
-			else ctx.result("You Do Not Have Permission To Update Ticket Statuses");
-		});
+			app.after("/updateTicketStatus*", ctx -> {
+				if((updated == true)&&(userRole.equals("Manager"))) {
+					ctx.result("Ticket Status Updated");}
+				else if((updated == false)&&(userRole.equals("Manager"))) {
+					ctx.result("Ticket Status Already Changed To : " + tickService.getTicketStatus(ticketNum));
+					ctx.status(HttpStatus.BAD_REQUEST_400);}
+				else ctx.result("You Do Not Have Permission To Update Ticket Statuses");
+			});
 	}//End of MAIN
 	
 }//End of Class

@@ -2,12 +2,12 @@ package com.revature.models;
 
 import java.util.Objects;
 
-import com.revature.models.Tickets;
-
 public class updateRequest {
 	Tickets Tick = new Tickets();
 	private String NewStatus;
 	private int TicketNumber;
+	
+	
 	public updateRequest() {
 		super();
 		// TODO Auto-generated constructor stub
@@ -16,9 +16,7 @@ public class updateRequest {
 		super();
 		this.NewStatus =  NewStatus;
 		this.TicketNumber = TicketNumber;
-		if ((NewStatus.equals("Approved"))||(NewStatus.equals("Denied"))) {
-			
-		}
+	
 	}
 	public String getNewStatus() {
 		return NewStatus;
