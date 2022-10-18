@@ -6,8 +6,8 @@ import com.revature.models.Tickets;
 import com.revature.models.updateRequest;
 import com.revature.repository.EmployeeRepository;
 import com.revature.repository.TicketRepository;
-import com.revature.service.AuthService;
 import com.revature.service.EmployeeService;
+import com.revature.service.TicketService;
 import com.revature.utils.AuthenticatorUtil;
 import com.revature.utils.TicketPuller;
 import com.revature.models.Employee;
@@ -37,6 +37,7 @@ public class TheBrains {
 	public static void main(String[] args) {
 	
 		EmployeeService empService = new EmployeeService();
+		TicketService tickService = new TicketService();
 		//EmployeeRepository empRep = new EmployeeRepository();
 		Javalin app = Javalin.create().start(8000);
 		TicketRepository tickRep = new TicketRepository();
@@ -77,18 +78,14 @@ public class TheBrains {
 			// ************ABOVE CODE IS FINAL AND UNIT TESTED *********	
 			
 			
-			
+			// ************LOG IN PAGE IS FINISHED **************
 			app.post("/login", ctx -> {
 				
 				LogIn creds = ctx.bodyAsClass(LogIn.class);
 				recUserName = creds.getUsername();
 				recPassword = creds.getPassword();
 				authenticated = empService.userAuthentication(recUserName,recPassword);
-				System.out.println(recUserName);
-				System.out.println(recPassword);
-				System.out.println(authenticated);
-				//userRole = empService.getUsersRole(recUserName);
-				//System.out.println(userRole);
+				userRole = empService.getUsersRole(recUserName);
 				if (authenticated == true) {
 				loggedInAs = creds.getUsername();
 				ctx.status(HttpStatus.ACCEPTED_202);
@@ -102,6 +99,7 @@ public class TheBrains {
 				else ctx.result("Invalid Username/Password.");
 			});
 				
+			// *********ABOVE CODE IS FINISHED AND UNIT TESTED ********
 			
 			
 			
@@ -194,7 +192,7 @@ public class TheBrains {
 			recReq = upReq.toString();
 			String updateCommand =upReq.getNewStatus();
 			ticketNum = upReq.getTicketNumber();
-			String shouldUpdate = authUtil.StatusChecker(ticketNum);
+			String shouldUpdate = tickService.getTicketStatus(ticketNum);
 			if (!shouldUpdate.equals("Pending")) {
 				updated = false;
 				ctx.status(HttpStatus.BAD_REQUEST_400);

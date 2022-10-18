@@ -39,7 +39,7 @@ public class TicketRepository {
 
 		}
 
-		public List<Tickets> findAllPending() {
+		public List<Tickets> findAll() {
 
 			// Make necessary Objects
 			List<Tickets> ticklist = new ArrayList<>();
@@ -53,7 +53,7 @@ public class TicketRepository {
 				
 				stmt = conn.createStatement();
 
-				set = stmt.executeQuery("SELECT * FROM ticket WHERE ticket_status = 'Pending'");
+				set = stmt.executeQuery("SELECT * FROM ticket");
 				while (set.next()) {
 					ticklist.add(
 							new Tickets (set.getInt(1), set.getFloat(2), set.getString(3), set.getString(4), set.getString(5)));

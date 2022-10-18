@@ -1,7 +1,5 @@
 package com.revature.tests;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import java.util.Arrays;
 import java.util.List;
 

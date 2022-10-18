@@ -44,6 +44,14 @@ public class Tickets {
 	}
 	
 	
+	public Tickets(int i, double d, String string, String string2) {
+		this.ticketNumber = i;
+		this.ticketAmount = (float) d;
+		this.ticketDesc = string;
+		this.ticketStatus = string2;
+		
+	}
+
 	public int getTicketNumber() {
 		return ticketNumber;
 	}
