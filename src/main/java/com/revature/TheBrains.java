@@ -1,6 +1,4 @@
-package com.rev.project1;
-
-import java.util.List;
+package com.revature;
 
 import org.eclipse.jetty.http.HttpStatus;
 
@@ -8,15 +6,14 @@ import com.revature.models.Tickets;
 import com.revature.models.updateRequest;
 import com.revature.repository.EmployeeRepository;
 import com.revature.repository.TicketRepository;
+import com.revature.service.EmployeeService;
 import com.revature.utils.AuthenticatorUtil;
 import com.revature.utils.TicketPuller;
-import com.revature.utils.UserNameExists;
 import com.revature.models.Employee;
 import com.revature.models.LogIn;
 
 import io.javalin.Javalin;
 import io.javalin.http.Context;
-import io.javalin.http.Handler;
 
 public class TheBrains {
 
@@ -41,7 +38,7 @@ public class TheBrains {
 		TicketRepository tickRep = new TicketRepository();
 		EmployeeRepository empRep = new EmployeeRepository();
 		AuthenticatorUtil authUtil = new AuthenticatorUtil();
-		UserNameExists uNE = new UserNameExists();
+		EmployeeService empService = new EmployeeService();
 		TicketPuller tP = new TicketPuller();
 		
 		
@@ -75,8 +72,11 @@ public class TheBrains {
 			exists = true;
 			Employee receivedEmployee = ctx.bodyAsClass(Employee.class);
 			recEmp = receivedEmployee.toString();
-			exists = receivedEmployee.getUsername().equals(uNE.CheckUserName(receivedEmployee.getUsername()));
 			newUserName = receivedEmployee.getUsername();
+			exists = empService.usernameExists(newUserName);
+			System.out.println(newUserName);
+			System.out.println(exists);
+			
 			if (exists == false) {
 			empRep.save(receivedEmployee);
 			ctx.status(HttpStatus.CREATED_201);}

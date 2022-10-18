@@ -64,7 +64,6 @@ public class EmployeeRepository {
 				e.printStackTrace();
 			}
 
-			
 			finally {
 
 				try {
@@ -79,11 +78,6 @@ public class EmployeeRepository {
 			return employees;
 		}
 
-		
-		
-		
-		
-		
 		public boolean update(Employee employee) {
 
 			Connection conn = null;
@@ -114,18 +108,8 @@ public class EmployeeRepository {
 
 		}
 		
-		
 		public void deleteById(int id)
 	    {
-			/*
-			 * This method uses a PreparedStatement. A PreparedStatement is a special type of Statement
-			 * that protects against SQL injection. SQL injection occurs when a user of an application with
-			 * malicious intent enters SQL as input, which is then executed against your DB.
-			 * 
-			 * PreparedStatements are precompiled - this is how they prevent SQL injection as the parameter(s)
-			 * is just replaced with the actual value before the query is executed. Parameters are denoted with
-			 * the "?" syntax. Each parameter has its own index, starting from 1.
-			 */
 	        String sqlCommand = "DELETE FROM employee where employee_idnum = ?";
 
 	        try(Connection conn = ConnectionFactory.getConnection();
