@@ -156,7 +156,7 @@ public class TheBrains {
 		});
 		
 		
-		// ****UPDATED 
+		// ****UPDATED & TESTED
 		app.get("/completed_tickets",  (Context ctx) -> {
 			if(userRole.equals("Manager")) {
 			ctx.json(tickService.getCompletedTickets());}
@@ -171,7 +171,7 @@ public class TheBrains {
 		
 		
 			
-	
+		// *******UPDATED & TESTED
 		app.get("/employee_tickets",  (Context ctx) -> {
 			ctx.json(tickService.ticketPuller(loggedInAs));
 			
