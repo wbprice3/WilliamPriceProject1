@@ -4,12 +4,9 @@ import org.eclipse.jetty.http.HttpStatus;
 
 import com.revature.models.Tickets;
 import com.revature.models.updateRequest;
-import com.revature.repository.EmployeeRepository;
 import com.revature.repository.TicketRepository;
 import com.revature.service.EmployeeService;
 import com.revature.service.TicketService;
-import com.revature.utils.AuthenticatorUtil;
-import com.revature.utils.TicketPuller;
 import com.revature.models.Employee;
 import com.revature.models.LogIn;
 
@@ -41,8 +38,7 @@ public class TheBrains {
 		//EmployeeRepository empRep = new EmployeeRepository();
 		Javalin app = Javalin.create().start(8000);
 		TicketRepository tickRep = new TicketRepository();
-		AuthenticatorUtil authUtil = new AuthenticatorUtil();
-		TicketPuller tP = new TicketPuller();
+	
 		
 		
 		
@@ -146,10 +142,10 @@ public class TheBrains {
 		
 		
 		
-		
+		// *****UPDATED
 		app.get("/pending_tickets",  (Context ctx) -> {
 			if(userRole.equals("Manager")) {
-			ctx.json(tickRep.findAllPending());}
+			ctx.json(tickService.getPendingTickets());}
 			else if (userRole.equals("Employee")){
 				ctx.status(HttpStatus.BAD_REQUEST_400);;}
 		});
@@ -160,10 +156,10 @@ public class TheBrains {
 		});
 		
 		
-		
+		// ****UPDATED 
 		app.get("/completed_tickets",  (Context ctx) -> {
 			if(userRole.equals("Manager")) {
-			ctx.json(tickRep.findAllComplete());}
+			ctx.json(tickService.getCompletedTickets());}
 			else if (userRole.equals("Employee")){
 				ctx.status(HttpStatus.BAD_REQUEST_400);;}
 		});
@@ -177,7 +173,7 @@ public class TheBrains {
 			
 	
 		app.get("/employee_tickets",  (Context ctx) -> {
-			ctx.json(tP.PullTickets(loggedInAs));
+			ctx.json(tickService.ticketPuller(loggedInAs));
 			
 	});
 		
@@ -208,7 +204,7 @@ public class TheBrains {
 			if((updated == true)&&(userRole.equals("Manager"))) {
 		    ctx.result("Ticket Status Updated");}
 			else if((updated == false)&&(userRole.equals("Manager"))) {
-			    ctx.result("Ticket Status Already Changed To : " + authUtil.StatusChecker(ticketNum));
+			    ctx.result("Ticket Status Already Changed To : " + tickService.getTicketStatus(ticketNum));
 				ctx.status(HttpStatus.BAD_REQUEST_400);}
 			else ctx.result("You Do Not Have Permission To Update Ticket Statuses");
 		});

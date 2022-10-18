@@ -6,7 +6,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import com.revature.models.Tickets;
@@ -79,6 +78,8 @@ public class TicketRepository {
 			return ticklist;
 		}
 
+		
+		
 		public void updateTicket(String NewStatus, int TicketNumber) {
 
 			Connection conn = null;
@@ -118,46 +119,6 @@ public class TicketRepository {
 	            e.printStackTrace();
 	        }
 	    }
-		
-		public List<Tickets> findAllComplete() {
-
-			// Make necessary Objects
-			List<Tickets> ticklist = new ArrayList<>();
-			ResultSet set = null;
-			Statement stmt = null;
-			Connection conn = null;
-
-			try {
-
-				conn = ConnectionFactory.getConnection();
-				
-				stmt = conn.createStatement();
-
-				set = stmt.executeQuery("SELECT * FROM ticket WHERE ticket_status = 'Approved' OR ticket_status = 'Denied'");
-				while (set.next()) {
-					ticklist.add(
-							new Tickets (set.getInt(1), set.getFloat(2), set.getString(3), set.getString(4), set.getString(5)));
-				}
-			}
-
-			catch (SQLException e) {
-				e.printStackTrace();
-			}
-
-			
-			finally {
-
-				try {
-					conn.close();
-					set.close();
-					stmt.close();
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-			}
-
-			return ticklist;
-		}
 
 }//End of class
 

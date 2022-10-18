@@ -1,5 +1,6 @@
 package com.revature.service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.revature.models.Tickets;
@@ -23,5 +24,41 @@ public class TicketService {
 			
 		}
 		return "Not A Valid Ticket Number";
+	}
+	
+	public List<Tickets> getPendingTickets() {
+		List<Tickets> ticketList = tickRep.findAll();
+		List<Tickets> pendingTickets = new ArrayList<>();
+		for (Tickets t : ticketList) {
+			if(t.getTicketStatus().equals("Pending")) {
+				pendingTickets.add(t);
+			}
+			
+		}
+		return pendingTickets;
+	}
+	
+	public List<Tickets> getCompletedTickets() {
+		List<Tickets> ticketList = tickRep.findAll();
+		List<Tickets> completedTickets = new ArrayList<>();
+		for (Tickets t : ticketList) {
+			if(!t.getTicketStatus().equals("Pending")) {
+				completedTickets.add(t);
+			}
+			
+		}
+		return completedTickets;
+	}
+	
+	public List<Tickets> ticketPuller(String uName){
+		List<Tickets> ticketList = tickRep.findAll();
+		List<Tickets> pulledTickets = new ArrayList<>();
+		for (Tickets t : ticketList) {
+			if(t.getTickSubmitter().equals(uName)){
+				pulledTickets.add(t);
+			}
+			
+		}
+		return pulledTickets;
 	}
 }
