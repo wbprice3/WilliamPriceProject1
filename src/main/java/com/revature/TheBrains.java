@@ -20,24 +20,24 @@ public class TheBrains {
 	public static boolean authenticated = false;
 	static String recUserName;
 	static String recPassword;
-	public static String newUserName;
+	private static String newUserName;
 	public static String recEmp;
 	public static String recTick;
 	public static String recCreds;
 	public static String recReq;
-	public static String loggedInAs;
-	public static boolean exists;
-	public static String userRole;
-	public static boolean updated;
+	private static String loggedInAs;
+	private static boolean exists;
+	private static String userRole;
+	private static boolean updated;
 	static int ticketNum;
 	static boolean inputBad;
+	private static Cookie userCookie = new Cookie("Authenticated", "false");
 	
 	
 	public static void main(String[] args) {
 	
 		EmployeeService empService = new EmployeeService();
 		TicketService tickService = new TicketService();
-		//EmployeeRepository empRep = new EmployeeRepository();
 		Javalin app = Javalin.create().start(8000);
 		TicketRepository tickRep = new TicketRepository();
 	
@@ -86,14 +86,19 @@ public class TheBrains {
 				recPassword = creds.getPassword();
 				authenticated = empService.userAuthentication(recUserName,recPassword);
 				userRole = empService.getUsersRole(recUserName);
-				if (authenticated == true) {
-					Cookie userCookie = new Cookie ("authenticated","true");
+				if (authenticated == true){
+					
+					//Cookie userCookie = new Cookie ("authenticated","true");
+					userCookie.setValue("True");
 					userCookie.setHttpOnly(true);
 					loggedInAs = creds.getUsername();
 					ctx.status(HttpStatus.ACCEPTED_202);
 					ctx.res().addCookie(userCookie);
 				}
-				else ctx.status(HttpStatus.BAD_REQUEST_400);
+				else {
+					ctx.status(HttpStatus.BAD_REQUEST_400);
+					
+				}
 			});
 			
 			app.after("/login*", ctx -> {
@@ -108,7 +113,7 @@ public class TheBrains {
 			
 			
 			app.post("/new-ticket", ctx -> {
-				if(authenticated == true) {
+				if(userCookie.getValue().equals("True")) {
 				Tickets receivedTicket = ctx.bodyAsClass(Tickets.class);
 				receivedTicket.setTickSubmitter(loggedInAs);
 				recTick = receivedTicket.toString();
@@ -133,7 +138,8 @@ public class TheBrains {
 		
 			// *****UPDATED
 			app.get("/pending_tickets",  (Context ctx) -> {
-				if(authenticated == true) {
+				if(userCookie.getValue().equals("True")) {
+				//if(authenticated == true) {
 				if(userRole.equals("Manager")) {
 					ctx.json(tickService.getPendingTickets());}
 				else if (userRole.equals("Employee")){
@@ -155,7 +161,8 @@ public class TheBrains {
 		
 			// ****UPDATED & TESTED
 			app.get("/completed_tickets",  (Context ctx) -> {
-				if (authenticated == true) {
+				if(userCookie.getValue().equals("True")) {
+				//if (authenticated == true) {
 				if(userRole.equals("Manager")) {
 					ctx.json(tickService.getCompletedTickets());}
 				else if (userRole.equals("Employee")){
@@ -164,8 +171,10 @@ public class TheBrains {
 			});
 		
 			app.after("/completed_tickets*", ctx -> {
+				if(userCookie.getValue().equals("True")) {
 				if(userRole.equals("Employee")) {
 					ctx.result("You are not authorized to view this page");}
+				}
 				if(authenticated == false) {
 				ctx.result("You are not logged in");
 				ctx.status(HttpStatus.BAD_REQUEST_400);}
@@ -175,14 +184,17 @@ public class TheBrains {
 			
 			// *******UPDATED & TESTED
 			app.get("/employee_tickets",  (Context ctx) -> {
-				if(authenticated == true) {
+				if(userCookie.getValue().equals("True")) {
+				//if(authenticated == true) {
 				ctx.json(tickService.ticketPuller(loggedInAs));}
 				else ctx.result("You Are Not Logged In");
 			});
 		
 		
 			app.post("/updateTicketStatus", ctx -> {
-				if((authenticated == true) && (userRole.equals("Manager"))) {
+				//if(userCookie.getValue().equals("True")) {
+				if((userCookie.getValue().equals("True")) && (userRole.equals("Manager"))) {
+				//if((authenticated == true) && (userRole.equals("Manager"))) {
 					updateRequest upReq = ctx.bodyAsClass(updateRequest.class);
 					recReq = upReq.toString();
 					String updateCommand =upReq.getNewStatus();
@@ -217,18 +229,14 @@ public class TheBrains {
 			});
 			
 			app.get("/logout",(Context ctx) -> {
-				
-				if (authenticated == true) {
+				if(userCookie.getValue().equals("True")) {
+				//if (authenticated == true) {
 					authenticated = false;
-					Cookie [] cookies = ctx.req().getCookies();
-					for (Cookie cookie : cookies) {
-					if(cookie.getName().equals("authenticated")) {
-						
-						cookie.setValue("false");
-						ctx.res().addCookie(cookie);
-						ctx.result("UserName: " + loggedInAs + " Has Been Logged Out.");
+					userCookie.setValue("false");
+					ctx.res().addCookie(userCookie);
+					ctx.result("UserName: " + loggedInAs + " Has Been Logged Out.");
 					}
-				}} else if (authenticated == false) {ctx.result("You Must Be Logged In Before You Can Log Out!");}
+				 else if (authenticated == false) {ctx.result("You Must Be Logged In Before You Can Log Out!");}
 					
 			});
 	}//End of MAIN
