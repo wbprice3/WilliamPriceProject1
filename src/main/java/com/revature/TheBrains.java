@@ -12,10 +12,12 @@ import com.revature.models.LogIn;
 
 import io.javalin.Javalin;
 import io.javalin.http.Context;
+import jakarta.servlet.http.Cookie;
+
 
 public class TheBrains {
 
-	public static boolean authenticated;
+	public static boolean authenticated = false;
 	static String recUserName;
 	static String recPassword;
 	public static String newUserName;
@@ -51,8 +53,7 @@ public class TheBrains {
 			
 			// *********THE NEW EMPLOYEE PAGE IS FINISHED ********
 			app.post("/new-employee", ctx -> {
-				
-				exists = true;
+								exists = true;
 				Employee receivedEmployee = ctx.bodyAsClass(Employee.class);
 				recEmp = receivedEmployee.toString();
 				newUserName = receivedEmployee.getUsername();
@@ -63,7 +64,10 @@ public class TheBrains {
 				
 				ctx.status(HttpStatus.CREATED_201);}
 				
-				else ctx.status(HttpStatus.BAD_REQUEST_400);
+				else 
+					ctx.status(HttpStatus.BAD_REQUEST_400);
+				
+				
 			});
 			
 			app.after("/new-employee*", ctx -> {
@@ -83,8 +87,11 @@ public class TheBrains {
 				authenticated = empService.userAuthentication(recUserName,recPassword);
 				userRole = empService.getUsersRole(recUserName);
 				if (authenticated == true) {
-				loggedInAs = creds.getUsername();
-				ctx.status(HttpStatus.ACCEPTED_202);
+					Cookie userCookie = new Cookie ("authenticated","true");
+					userCookie.setHttpOnly(true);
+					loggedInAs = creds.getUsername();
+					ctx.status(HttpStatus.ACCEPTED_202);
+					ctx.res().addCookie(userCookie);
 				}
 				else ctx.status(HttpStatus.BAD_REQUEST_400);
 			});
@@ -101,7 +108,7 @@ public class TheBrains {
 			
 			
 			app.post("/new-ticket", ctx -> {
-			
+				if(authenticated == true) {
 				Tickets receivedTicket = ctx.bodyAsClass(Tickets.class);
 				receivedTicket.setTickSubmitter(loggedInAs);
 				recTick = receivedTicket.toString();
@@ -111,57 +118,71 @@ public class TheBrains {
 				}else {
 					inputBad = false;
 					tickRep.save(receivedTicket);
-					ctx.status(HttpStatus.CREATED_201);}
-			});
+					ctx.status(HttpStatus.CREATED_201);}}
+				});
 		
 			app.after("/new-ticket*", ctx -> {
 				if(inputBad == true) {
 					ctx.result("Tickets Require A Valid Amount and Description");}
+				else if (authenticated == false) {
+					ctx.result("You Must Be Logged In To Create A New Ticket!");
+				}
 				else ctx.result("New Ticket Created");
 			});
 		
 		
 			// *****UPDATED
 			app.get("/pending_tickets",  (Context ctx) -> {
+				if(authenticated == true) {
 				if(userRole.equals("Manager")) {
 					ctx.json(tickService.getPendingTickets());}
 				else if (userRole.equals("Employee")){
-					ctx.status(HttpStatus.BAD_REQUEST_400);;}
+					ctx.status(HttpStatus.BAD_REQUEST_400);;}}
 			});
 		
 			app.after("/pending_tickets*", ctx -> {
-				if(userRole.equals("Employee")) {
-					ctx.result("You are not authorized to view this page");}
+				if(authenticated == false) {
+					ctx.result("You are not logged in!");
+					ctx.status(HttpStatus.BAD_REQUEST_400);
+				}
+				if((authenticated == true)&&(userRole.equals("Employee"))) {
+					ctx.result("You are not authorized to view this page");
+					ctx.status(HttpStatus.BAD_REQUEST_400);
+				}
+				
 			});
 		
 		
 			// ****UPDATED & TESTED
 			app.get("/completed_tickets",  (Context ctx) -> {
+				if (authenticated == true) {
 				if(userRole.equals("Manager")) {
 					ctx.json(tickService.getCompletedTickets());}
 				else if (userRole.equals("Employee")){
 					ctx.status(HttpStatus.BAD_REQUEST_400);;}
+				}
 			});
 		
 			app.after("/completed_tickets*", ctx -> {
 				if(userRole.equals("Employee")) {
 					ctx.result("You are not authorized to view this page");}
+				if(authenticated == false) {
+				ctx.result("You are not logged in");
+				ctx.status(HttpStatus.BAD_REQUEST_400);}
 			});
 			// *****COMPLETE
 		
 			
 			// *******UPDATED & TESTED
 			app.get("/employee_tickets",  (Context ctx) -> {
-				ctx.json(tickService.ticketPuller(loggedInAs));
+				if(authenticated == true) {
+				ctx.json(tickService.ticketPuller(loggedInAs));}
+				else ctx.result("You Are Not Logged In");
 			});
 		
-//		app.get("/employees",  (Context ctx) -> {
-//			ctx.json(empRep.findAll());
-//			System.out.println(empRep.findAll());
-//	});
 		
 			app.post("/updateTicketStatus", ctx -> {
-				if (userRole.equals("Manager")) {
+				if((authenticated == true) && (userRole.equals("Manager"))) {
 					updateRequest upReq = ctx.bodyAsClass(updateRequest.class);
 					recReq = upReq.toString();
 					String updateCommand =upReq.getNewStatus();
@@ -171,20 +192,44 @@ public class TheBrains {
 						updated = false;
 						ctx.status(HttpStatus.BAD_REQUEST_400);
 					}
-					else {
+					
+				else {
 						tickRep.updateTicket(updateCommand, ticketNum);
-						updated = true;}
-					ctx.status(HttpStatus.ACCEPTED_202);}
+						updated = true;
+					ctx.status(HttpStatus.ACCEPTED_202);}}
 				else ctx.status(HttpStatus.BAD_REQUEST_400);
 			});
 	
 			app.after("/updateTicketStatus*", ctx -> {
-				if((updated == true)&&(userRole.equals("Manager"))) {
+				if(authenticated == false) {
+					ctx.result("You are not logged in");
+					ctx.status(HttpStatus.BAD_REQUEST_400);}
+				else if((updated == true)&&(userRole.equals("Manager"))) {
 					ctx.result("Ticket Status Updated");}
-				else if((updated == false)&&(userRole.equals("Manager"))) {
+				else if((authenticated == true) &&(updated == false)&&(userRole.equals("Manager"))) {
 					ctx.result("Ticket Status Already Changed To : " + tickService.getTicketStatus(ticketNum));
 					ctx.status(HttpStatus.BAD_REQUEST_400);}
-				else ctx.result("You Do Not Have Permission To Update Ticket Statuses");
+				
+				
+				else if ((authenticated == true) && (userRole.equals("Employee"))){
+					ctx.result("You Do Not Have Permission To Update Ticket Statuses");
+				}
+			});
+			
+			app.get("/logout",(Context ctx) -> {
+				
+				if (authenticated == true) {
+					authenticated = false;
+					Cookie [] cookies = ctx.req().getCookies();
+					for (Cookie cookie : cookies) {
+					if(cookie.getName().equals("authenticated")) {
+						
+						cookie.setValue("false");
+						ctx.res().addCookie(cookie);
+						ctx.result("UserName: " + loggedInAs + " Has Been Logged Out.");
+					}
+				}} else if (authenticated == false) {ctx.result("You Must Be Logged In Before You Can Log Out!");}
+					
 			});
 	}//End of MAIN
 	
