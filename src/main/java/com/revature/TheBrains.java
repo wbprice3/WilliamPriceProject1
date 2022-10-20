@@ -45,9 +45,6 @@ public class TheBrains {
 		
 		
 		
-			app.get("/hello",  (Context ctx) -> {
-				ctx.res().getWriter().write("Hello, client");
-		});
 		
 		
 			
