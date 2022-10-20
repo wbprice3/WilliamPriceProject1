@@ -1,4 +1,0 @@
-Employee [idNum= 2, username= price1254, password= password, role= Employee]
-Employee [idNum= 2, username= TacoCity, password= password1, role= Employee]
-Employee [idNum= 2, username= price1254, password= password, role= Employee]
-Employee [idNum= 3, username= TacoCity, password= password1, role= Employee]
