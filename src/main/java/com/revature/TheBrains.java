@@ -79,6 +79,11 @@ public class TheBrains {
 			
 			
 			// ************LOG IN PAGE IS FINISHED **************
+			app.before("/login*", ctx -> {
+				if(userCookie.getValue().equals("True")) {
+			    ctx.result("The Current User "+ loggedInAs + "Must Log Out First ");}
+			});
+			
 			app.post("/login", ctx -> {
 				
 				LogIn creds = ctx.bodyAsClass(LogIn.class);
@@ -88,7 +93,7 @@ public class TheBrains {
 				userRole = empService.getUsersRole(recUserName);
 				if (authenticated == true){
 					
-					//Cookie userCookie = new Cookie ("authenticated","true");
+					
 					userCookie.setValue("True");
 					userCookie.setHttpOnly(true);
 					loggedInAs = creds.getUsername();
@@ -139,8 +144,10 @@ public class TheBrains {
 			// *****UPDATED
 			app.get("/pending_tickets",  (Context ctx) -> {
 				if(userCookie.getValue().equals("True")) {
-				//if(authenticated == true) {
-				if(userRole.equals("Manager")) {
+					if(userRole.equals("Manager")) {
+					if (tickService.getPendingTickets().size()==0) {
+						ctx.result("No Pending Tickets");
+					}else 
 					ctx.json(tickService.getPendingTickets());}
 				else if (userRole.equals("Employee")){
 					ctx.status(HttpStatus.BAD_REQUEST_400);;}}
@@ -162,8 +169,7 @@ public class TheBrains {
 			// ****UPDATED & TESTED
 			app.get("/completed_tickets",  (Context ctx) -> {
 				if(userCookie.getValue().equals("True")) {
-				//if (authenticated == true) {
-				if(userRole.equals("Manager")) {
+					if(userRole.equals("Manager")) {
 					ctx.json(tickService.getCompletedTickets());}
 				else if (userRole.equals("Employee")){
 					ctx.status(HttpStatus.BAD_REQUEST_400);;}
@@ -185,16 +191,13 @@ public class TheBrains {
 			// *******UPDATED & TESTED
 			app.get("/employee_tickets",  (Context ctx) -> {
 				if(userCookie.getValue().equals("True")) {
-				//if(authenticated == true) {
 				ctx.json(tickService.ticketPuller(loggedInAs));}
 				else ctx.result("You Are Not Logged In");
 			});
 		
 		
 			app.post("/updateTicketStatus", ctx -> {
-				//if(userCookie.getValue().equals("True")) {
 				if((userCookie.getValue().equals("True")) && (userRole.equals("Manager"))) {
-				//if((authenticated == true) && (userRole.equals("Manager"))) {
 					updateRequest upReq = ctx.bodyAsClass(updateRequest.class);
 					recReq = upReq.toString();
 					String updateCommand =upReq.getNewStatus();
@@ -230,7 +233,6 @@ public class TheBrains {
 			
 			app.get("/logout",(Context ctx) -> {
 				if(userCookie.getValue().equals("True")) {
-				//if (authenticated == true) {
 					authenticated = false;
 					userCookie.setValue("false");
 					ctx.res().addCookie(userCookie);
