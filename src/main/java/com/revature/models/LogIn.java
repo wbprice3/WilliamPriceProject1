@@ -3,60 +3,60 @@ package com.revature.models;
 import java.util.Objects;
 
 public class LogIn {
-	
-	private String Username;
-	private String Password;
-	
-	public LogIn() {
-		super();
-		// TODO Auto-generated constructor stub
-	}
 
-	public LogIn(String Username, String Password) {
-		super();
-		this.Username = Username;
-		this.Password = Password;
-	}
+private String email;
+private String password;
 
-	public String getUsername() {
-		return Username;
-	}
+public LogIn() {
+	super();
+	// TODO Auto-generated constructor stub
+}
 
-	public void setUsername(String Username) {
-		this.Username = Username;
-	}
+public LogIn(String email, String password) {
+	super();
+	this.email = email;
+	this.password = password;
+}
 
-	public String getPassword() {
-		return Password;
-	}
+@Override
+public String toString() {
+	return "LogIn [email=" + email + ", password=" + password + "]";
+}
 
-	public void setPassword(String Password) {
-		this.Password = Password;
-	}
+@Override
+public int hashCode() {
+	return Objects.hash(email, password);
+}
 
-	@Override
-	public int hashCode() {
-		return Objects.hash(Password, Username);
-	}
+@Override
+public boolean equals(Object obj) {
+	if (this == obj)
+		return true;
+	if (obj == null)
+		return false;
+	if (getClass() != obj.getClass())
+		return false;
+	LogIn other = (LogIn) obj;
+	return Objects.equals(email, other.email) && Objects.equals(password, other.password);
+}
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		LogIn other = (LogIn) obj;
-		return Objects.equals(Password, other.Password) && Objects.equals(Username, other.Username);
-	}
+public String getEmail() {
+	return email;
+}
 
-	@Override
-	public String toString() {
-		return "[LogIn [Username=" + Username + ", Password=" + Password + "]";
-	}
-	
-	
+public void setEmail(String email) {
+	this.email = email;
+}
+
+public String getPassword() {
+	return password;
+}
+
+public void setPassword(String password) {
+	this.password = password;
 }
 
 
+
+
+}

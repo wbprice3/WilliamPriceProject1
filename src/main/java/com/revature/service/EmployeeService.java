@@ -3,6 +3,7 @@ package com.revature.service;
 import java.util.Collections;
 import java.util.List;
 
+import com.revature.models.AccountModel;
 import com.revature.models.Employee;
 import com.revature.repository.EmployeeRepository;
 
@@ -15,17 +16,17 @@ public class EmployeeService {
 		this.empRep =  new EmployeeRepository();
 	}
 
-	public List<Employee> sortEmployeeByName(){
-		List<Employee> retrievedEmps = this.empRep.findAll();
-		Collections.sort(retrievedEmps, (e1, e2) -> e1.getUsername().compareTo(e2.getUsername()));
+	public List<AccountModel> sortEmployeeByName(){
+		List<AccountModel> retrievedEmps = this.empRep.findAll();
+		Collections.sort(retrievedEmps, (e1, e2) -> e1.getEmail().compareTo(e2.getEmail()));
 		return retrievedEmps;
 	}
 	
 	public boolean usernameExists(String userName){
 		
-		List<Employee> retrievedEmps = empRep.findAll();
-		for (Employee e : retrievedEmps) {
-			if(e.getUsername().equals(userName)) {
+		List<AccountModel> retrievedEmps = empRep.findAll();
+		for (AccountModel e : retrievedEmps) {
+			if(e.getEmail().equals(userName)) {
 				return true;
 				
 			} 
@@ -33,10 +34,10 @@ public class EmployeeService {
 		return false;
 	}
 	
-	public boolean userAuthentication(String userName, String password) {
-		List<Employee> retrievedEmps = this.empRep.findAll();
-		for (Employee e : retrievedEmps) {
-			if ((e.getUsername().equals(userName))&&(e.getPassword().equals(password))) {
+	public boolean userAuthentication(String email, String password) {
+		List<AccountModel> retrievedAccs = this.empRep.findAll();
+		for (AccountModel e : retrievedAccs) {
+			if ((e.getEmail().equals(email))&&(e.getPassword().equals(password))) {
 				return  true;
 				
 			}
@@ -46,19 +47,19 @@ public class EmployeeService {
 	}
 	
 	
-	public String getUsersRole(String userName) {
+	public String getUsersRole(String email) {
 		
-		List<Employee> retrievedEmps = this.empRep.findAll();
-		for (Employee e : retrievedEmps) {
-			if (e.getUsername().equals(userName)){
-				role = e.getRole();
+		List<AccountModel> retrievedEmps = this.empRep.findAll();
+		for (AccountModel e : retrievedEmps) {
+			if (e.getEmail().equals(email)){
+				role = e.getAccountType();
 			}
 		}
 		return role;
 		}
 	
-	public void saveEmployee(Employee employee) {
-		this.empRep.save(employee);
+	public void saveEmployee(AccountModel accModel) {
+		this.empRep.save(accModel);
 	};
 		
 }//End of Class

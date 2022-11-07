@@ -7,6 +7,7 @@ import com.revature.models.updateRequest;
 import com.revature.repository.TicketRepository;
 import com.revature.service.EmployeeService;
 import com.revature.service.TicketService;
+import com.revature.models.AccountModel;
 import com.revature.models.Employee;
 import com.revature.models.LogIn;
 
@@ -38,9 +39,20 @@ public class TheBrains {
 	
 		EmployeeService empService = new EmployeeService();
 		TicketService tickService = new TicketService();
-		Javalin app = Javalin.create().start(8000);
+		//Javalin app = Javalin.create().start(8000);
 		TicketRepository tickRep = new TicketRepository();
+		
+		Javalin app = Javalin.create(config -> {
+		    config.plugins.enableCors(cors -> {
+		        cors.add(it -> {
+		            it.anyHost();
+		            it.allowCredentials = true;
+		            it.exposeHeader("x-server");
+		        });
+		    });
+		});
 	
+		app.start(8000);
 		
 		
 		
@@ -49,23 +61,25 @@ public class TheBrains {
 		
 			
 			// *********THE NEW EMPLOYEE PAGE IS FINISHED ********
-			app.post("/new-employee", ctx -> {
+			app.post("/register", ctx -> {
 								exists = true;
-				Employee receivedEmployee = ctx.bodyAsClass(Employee.class);
-				recEmp = receivedEmployee.toString();
-				newUserName = receivedEmployee.getUsername();
-				exists = empService.usernameExists(newUserName);
+				AccountModel receivedModel = ctx.bodyAsClass(AccountModel.class);
+				String recModel = receivedModel.toString();
+			//	newUserName = receivedModel.getEmail();
+			//	exists = empService.usernameExists(newUserName);
 				
-				if (exists == false) {
-				empService.saveEmployee(receivedEmployee);
+			//	if (exists == false) {
+				empService.saveEmployee(receivedModel);
+				System.out.println(receivedModel);
+				ctx.status(HttpStatus.CREATED_201);});
+			
+			
 				
-				ctx.status(HttpStatus.CREATED_201);}
-				
-				else 
-					ctx.status(HttpStatus.BAD_REQUEST_400);
+			//	else 
+			//		ctx.status(HttpStatus.BAD_REQUEST_400);
 				
 				
-			});
+		//	});
 			
 			app.after("/new-employee*", ctx -> {
 				if(exists == false) {
@@ -84,22 +98,23 @@ public class TheBrains {
 			app.post("/login", ctx -> {
 				
 				LogIn creds = ctx.bodyAsClass(LogIn.class);
-				recUserName = creds.getUsername();
+				recUserName = creds.getEmail();
 				recPassword = creds.getPassword();
 				authenticated = empService.userAuthentication(recUserName,recPassword);
 				userRole = empService.getUsersRole(recUserName);
+				System.out.println(creds);
 				if (authenticated == true){
-					
+					System.out.println("Authenticated");
 					
 					userCookie.setValue("True");
 					userCookie.setHttpOnly(true);
-					loggedInAs = creds.getUsername();
+					loggedInAs = creds.getEmail();
 					ctx.status(HttpStatus.ACCEPTED_202);
 					ctx.res().addCookie(userCookie);
 				}
 				else {
 					ctx.status(HttpStatus.BAD_REQUEST_400);
-					
+					System.out.println("Not Authenticated");
 				}
 			});
 			
